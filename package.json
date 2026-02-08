@@ -1,0 +1,19 @@
+{
+  "name": "simple-rag-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "rag": "dist/rag-cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/rag-cli.js"
+  },
+  "dependencies": {
+    "openai": "^4.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
+
