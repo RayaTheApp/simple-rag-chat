@@ -26,7 +26,10 @@ Sample knowledge base of 20 markdown documents covering policies, procedures, an
 
 ```bash
 npm install
+# same api key for both OPENAI and ANTHROPIC
 export OPENAI_API_KEY="sk-..."
+export ANTHROPIC_API_KEY="sk-..."
+export ANTHROPIC_BASE_URL=https://very.raya.cool claude
 npm run build
 npm start
 ```

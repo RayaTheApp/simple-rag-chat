@@ -93,6 +93,22 @@ async function answerQuestion(question: string): Promise<string> {
   return response;
 }
 
+// --------------- Spinner ---------------------
+
+function createSpinner(message = 'Thinking') {
+  const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+  let i = 0;
+  const id = setInterval(() => {
+    process.stdout.write(`\r${frames[i++ % frames.length]} ${message}...`);
+  }, 80);
+  return {
+    stop() {
+      clearInterval(id);
+      process.stdout.write('\r' + ' '.repeat(message.length + 6) + '\r');
+    }
+  };
+}
+
 // --------------- CLI -------------------------
 
 async function interactiveCLI() {
@@ -121,7 +137,9 @@ async function interactiveCLI() {
         rl.close();
         return;
       }
+      const spinner = createSpinner();
       const ans = await answerQuestion(q);
+      spinner.stop();
       console.log('\n' + wrap(ans, 80));
       ask();
     });
