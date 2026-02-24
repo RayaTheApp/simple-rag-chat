@@ -93,6 +93,22 @@ async function answerQuestion(question: string): Promise<string> {
   return response;
 }
 
+// --------------- Spinner ---------------------
+
+function createSpinner(message = 'Thinking') {
+  const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+  let i = 0;
+  const id = setInterval(() => {
+    process.stdout.write(`\r${frames[i++ % frames.length]} ${message}...`);
+  }, 80);
+  return {
+    stop() {
+      clearInterval(id);
+      process.stdout.write('\r' + ' '.repeat(message.length + 6) + '\r');
+    }
+  };
+}
+
 // --------------- CLI -------------------------
 
 async function interactiveCLI() {
@@ -121,7 +137,9 @@ async function interactiveCLI() {
         rl.close();
         return;
       }
+      const spinner = createSpinner();
       const ans = await answerQuestion(q);
+      spinner.stop();
       console.log('\n' + wrap(ans, 80));
       ask();
     });
@@ -130,14 +148,29 @@ async function interactiveCLI() {
   ask();
 }
 
-function wrap(text: string, width: number): string {
-  const lines: string[] = [];
-  for (const word of text.split(/\s+/)) {
-    const last = lines[lines.length - 1];
-    if (!last || last.length + word.length + 1 > width) lines.push(word);
-    else lines[lines.length - 1] = last + ' ' + word;
+function wrapLine(line: string, width: number): string {
+  if (line.length <= width) return line;
+  const prefixMatch = line.match(/^(\s*(?:[-*•]\s+|\d+[.)]\s+)?)/);
+  const indent = ' '.repeat(prefixMatch ? prefixMatch[0].length : 0);
+  const words = line.split(/\s+/).filter(w => w.length > 0);
+  const result: string[] = [];
+  let current = '';
+  for (const word of words) {
+    if (!current) {
+      current = word;
+    } else if (current.length + 1 + word.length <= width) {
+      current += ' ' + word;
+    } else {
+      result.push(current);
+      current = indent + word;
+    }
   }
-  return lines.join('\n');
+  if (current) result.push(current);
+  return result.join('\n');
+}
+
+function wrap(text: string, width: number): string {
+  return text.split('\n').map(line => wrapLine(line, width)).join('\n');
 }
 
 // --------------- Main ------------------------
